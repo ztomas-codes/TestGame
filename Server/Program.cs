@@ -2,8 +2,10 @@
 using Server.Commands.Updates;
 using Server.Managers;
 using Server.Objects;
+using Server.Utils;
 using System.Net;
 using System.Net.Sockets;
+using Object = Server.Objects.Object;
 
 namespace Server
 {
@@ -18,24 +20,24 @@ namespace Server
             e.Location = new Utils.Location(10, 10);
             Server.Objects.Object.Objects.Add(e);
 
-            server = new TcpListener(IPAddress.Any, 9999);
-            server.Start();
-            new Thread(() => Listen()).Start();
-            new Thread(() =>
+            new Thread(() => 
             {
-                while (true)
+                while(true)
                 {
-                    Objects.Object.Objects.OfType<Player>().ToList().ForEach(x =>
+                    e.Location = new Location(new Random().Next(0,100), new Random().Next(0, 100));
+
+                    Object.Objects.OfType<Player>().ToList().ForEach(x =>
                     {
-                        Objects.Object.Objects.OfType<Enemy>().ToList().ForEach(y =>
-                        {
-                            Write(x.client.GetStream(), new EnemiesUpdate(y));
-                        });
-                        Console.WriteLine($"{x.Id}");
+                        Write(x.client.GetStream(), new EnemiesUpdate(e));
                     });
+
                     Thread.Sleep(100);
                 }
             }).Start();
+
+            server = new TcpListener(IPAddress.Any, 9999);
+            server.Start();
+            new Thread(() => Listen()).Start();
         }
 
         private static void Listen()

@@ -6,36 +6,84 @@ namespace TestGame
 {
     public partial class Form1 : MetroFramework.Forms.MetroForm
     {
+        Graphics g;
 
         public Form1()
         {
             InitializeComponent();
             new TestGame.Client.Client("localhost", 9999).Start();
+
+            DoubleBuffered = true;
+            SetDoubleBuffered(panel1);
+
+            new Thread(() =>
+            {
+                Render();
+            }).Start();
+
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+
+        #region .. Double Buffered function ..
+        public static void SetDoubleBuffered(System.Windows.Forms.Control c)
         {
-            var g = panel1.CreateGraphics();
+            if (System.Windows.Forms.SystemInformation.TerminalServerSession)
+                return;
+            System.Reflection.PropertyInfo aProp = typeof(System.Windows.Forms.Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            aProp.SetValue(c, true, null);
+        }
 
-            g.Clear(Color.White);
+        #endregion
 
-            Object.Objects.OfType<Player>().ToList().ForEach(x =>
+        #region .. code for Flucuring ..
+
+        protected override CreateParams CreateParams
+        {
+            get
             {
-                g.DrawEllipse(
-                    new Pen(new SolidBrush(Color.Green)),
-                    new Rectangle(new Point(x.Location.X, x.Location.Y), new Size(10,10))
-                );
-            });
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000;
+                return cp;
+            }
+        }
 
-            Object.Objects.OfType<Enemy>().ToList().ForEach(x =>
+        #endregion
+
+        private void Render()
+        {
+
+            while (true)
             {
-                g.DrawEllipse(
-                    new Pen(new SolidBrush(Color.Red)),
-                    new Rectangle(new Point(x.Location.X, x.Location.Y), new Size(10, 10))
-                );
-            });
+                var buffer = new Bitmap(panel1.Width, panel1.Height);
+                using (Graphics g = Graphics.FromImage(buffer))
+                {
 
+                    Object.Objects.OfType<Enemy>().ToList().ForEach(e =>
+                    {
+                        g.FillEllipse(
+                            new SolidBrush(Color.Red),
+                            new Rectangle(new Point(e.Location.X, e.Location.Y), new Size(10, 10))
+                        );
+                    });
 
+                    var oldImage = panel1.BackgroundImage;
+                    if (panel1.InvokeRequired)
+                    {
+                        Invoke((MethodInvoker)delegate
+                        {
+                            panel1.BackgroundImage = buffer;
+                        });
+                    }
+                    else
+                    {
+                        panel1.BackgroundImage = buffer;
+                    }
+                    if (oldImage != null)
+                    {
+                        oldImage.Dispose();
+                    }
+                }
+            }
         }
     }
 }
