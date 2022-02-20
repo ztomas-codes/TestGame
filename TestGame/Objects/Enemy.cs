@@ -11,7 +11,6 @@ namespace Client.Objects
         public Enemy()
         {
             Type = "Enemy";
-            Objects.Add(this);
         }
     }
 }

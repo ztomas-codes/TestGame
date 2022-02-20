@@ -12,4 +12,8 @@
     <Folder Include="Managers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MetroFramework" Version="1.2.0.3" />
+  </ItemGroup>
+
 </Project>

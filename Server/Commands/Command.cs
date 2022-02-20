@@ -13,7 +13,7 @@ namespace Server.Commands
         public byte[] Message() { 
             byte[] message = new byte[1000];
 
-            string ms = $"VOTE|{Prefix}|";
+            string ms = $"GAMESKA|{Prefix}|";
             Args.ToList().ForEach(x => ms += $"{x.Value}|");
 
             message = Encoding.Default.GetBytes(ms);

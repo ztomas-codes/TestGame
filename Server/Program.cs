@@ -14,7 +14,10 @@ namespace Server
         public static void Main()
         {
 
-            Server.Objects.Object.Objects.Add(new Enemy());
+            Enemy e = new();
+            e.Location = new Utils.Location(10, 10);
+            Server.Objects.Object.Objects.Add(e);
+
             server = new TcpListener(IPAddress.Any, 9999);
             server.Start();
             new Thread(() => Listen()).Start();
@@ -30,7 +33,7 @@ namespace Server
                         });
                         Console.WriteLine($"{x.Id}");
                     });
-                    Thread.Sleep(1000);
+                    Thread.Sleep(100);
                 }
             }).Start();
         }

@@ -14,7 +14,6 @@ namespace Client.Objects
         {
             Type = "Player";
             Name = name;
-            Objects.Add(this);
         }
 
     }
